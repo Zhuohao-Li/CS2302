@@ -1,0 +1,588 @@
+#!/bin/tcsh
+
+# testbase is the directory in which project directories are stored 
+set testbase = /home/zinuo/myshell/upload
+
+# directory to be tested is passed as first argument
+set submission = $testbase$1
+
+# directory containing this test script and other test files
+set thisdir = /home/zinuo/myshell/testproject1
+
+# target directory in which testing is done
+set testdir = /home/zinuo/myshell/testproject1/temp
+
+# alias for output function
+# must be capable of interpreting colour strings and escape chars
+alias print printf
+#alias print $thisdir/echoesc
+
+# pretty colours (ASCII terminal)
+set black = "\033[30m"
+set red = "\033[31m"
+set green = "\033[32m"
+set yellow = "\033[33m"
+set blue = "\033[34m"
+set magenta = "\033[35m"
+set cyan = "\033[36m"
+
+print "$red OS Exercises Project 1 test script \n"
+
+menu:
+
+chdir $testdir
+print " $magenta \n"
+print " 0  : restart \n"
+print " 1  : keyboard test \n"
+print " 2  : batch file test \n"
+print " 3  : internal commands \n"
+print " 4  : external commands \n"
+print " 5  : i/o redirection \n"
+print " 6  : background exececution \n"
+print " C  : display source code & readme \n"
+print " X  : exit \n"
+print " your choice: $black  "
+set reply = $<
+if ($reply == '0') goto test0
+if ($reply == '1') goto test1
+if ($reply == '2') goto test2
+if ($reply == '3') goto test3
+if ($reply == '4') goto test4
+if ($reply == '5') goto test5
+if ($reply == '6') goto test6
+if (($reply == 'C') || ($reply == 'c')) goto testC
+if (($reply == 'X') || ($reply == 'x')) goto testX
+
+print $red TEST ERROR - unrecognised option!
+goto menu
+
+test0:
+
+print "$magenta ================================================================\n"
+print " restart - clear directory, reload and build applications\n"
+print " ---------------------------------------------------------------- $black \n"
+rm $testdir/*
+cp $submission/* $testdir
+ls -al
+print "$magenta ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
+print " 0.1. should only be makefile, .c, .h, and readme files \n"
+print " ================================================================\n"
+print " press enter key to remove odd files and continue with compile: $black"
+set q = $<
+print "$magenta ---------------------------------------------------------------- $black \n"
+rm myshell
+rm *.a
+rm *.o
+make
+ls -al
+print "$magenta ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \n"
+print " 0.2. should have compiled myshell and listed directory \n"
+print " ================================================================ \n"
+
+print " press enter key to continue, X + enter to go back to menu: $black  "
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu
+
+test1:
+  
+print "$magenta ================================================================\n"
+print " test 1 - keyboard entry test \n"
+print "   type './myshell' at tcsh prompt \n"
+print "     check for prompt with current directory: $testdir \n"
+print "     try an empty line ... \n"
+print "     try ^C \n"
+print "   type 'quit' followed by 'exit' to end test \n"     
+print " ---------------------------------------------------------------- $black \n"
+cd $testdir
+tcsh
+print "$magenta ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \n"
+print " 1.1. end of keyboard entry test \n" 
+print " ================================================================ \n"
+
+print " press enter key to continue, X + enter to go back to menu: $black  "
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu
+
+test2:
+  
+print "$magenta ================================================================\n"
+print " test 2 - batchfile test \n"
+print "      2.1 - simple batch file: dir, quit \n"
+print " press enter key to continue, X + enter to go back to menu, S to skip: $black  "
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu
+if (($reply == 's') || ($reply == 'S')) goto test202             
+print "$magenta ---------------------------------------------------------------- $black \n"
+./myshell $thisdir/script1
+print "$magenta ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \n"
+print " 2.1. end of test 2.1 $blue \n"
+cat  $thisdir/script1
+print "$magenta       should have listed directory and quit back to test script \n"
+test202:
+print "$magenta ================================================================\n"
+print "      2.2 - batch file: dir, EOL, EOF \n"
+print " press enter key to continue, X + enter to go back to menu, S to skip: $black  "
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu       
+if (($reply == 's') || ($reply == 'S')) goto test203   
+print "$magenta ---------------------------------------------------------------- $black \n"
+./myshell $thisdir/script2
+print "$magenta ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \n"
+print " 2.2. end of test 2.2 $blue \n"
+cat  $thisdir/script2
+print "  \n"
+print "$magenta      should have listed directory and quit back to test script \n"
+test203:
+print "$magenta ================================================================\n"
+print "      2.3 - batch file: dir, EOF \n"
+print " press enter key to continue, X + enter to go back to menu, S to skip: $black  "
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu 
+if (($reply == 's') || ($reply == 'S')) goto test204         
+print "$magenta ---------------------------------------------------------------- $black \n"
+./myshell $thisdir/script3
+print "$magenta ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \n"
+print " 2.3. end of test 2.3 $blue \n"
+cat  $thisdir/script3
+print "\n $magenta      should have listed directory and quit back to test script \n"
+test204:
+print "$magenta ================================================================\n"
+print "      2.4 - batch file: dir, blank lines, quit \n"
+print " press enter key to continue, X + enter to go back to menu, S to skip: $black  "
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu
+if (($reply == 's') || ($reply == 'S')) goto test205        
+print "$magenta ---------------------------------------------------------------- $black \n"
+./myshell $thisdir/script4
+print "$magenta ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \n"
+print " 2.4. end of test 2.4 $blue \n"
+cat  $thisdir/script4
+print "$magenta       should have listed directory and quit back to test script \n"
+print " ================================================================ \n"
+test205:
+print "$magenta press enter key to continue, X + enter to go back to menu $black  "
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu
+
+test3:
+  
+print "$magenta ================================================================\n"
+print " test 3 - internal commands \n"
+print "      3.1 - cd - change directory \n"
+print " press enter key to continue, X + enter to go back to menu, S to skip: $black  "
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu
+if (($reply == 's') || ($reply == 'S')) goto test302             
+print "$magenta ---------------------------------------------------------------- $black \n"
+./myshell << ENDOFSTDIN
+cd ..
+cd
+$thisdir/getenv PWD
+$thisdir/getenv pwd
+quit
+ENDOFSTDIN
+print "  \n"
+print "$magenta ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \n"
+print " 3.1. end of test 3.1 \n"
+print "$blue cd .. \n"
+print " cd \n"
+print " $thisdir/getenv PWD \n"
+print " $thisdir/getenv pwd \n"
+print " quit $magenta \n"
+print "      first prompt should contain $testdir \n"
+print "      2nd, 3rd and 4th prompt should contain $thisdir \n"
+print "      followed by name of directory ( $thisdir ) \n"
+print "      followed by PWD=$thisdir \n"
+test302:
+print "$magenta ================================================================\n"
+print "      3.2 - clr - clear screen \n"
+print " press enter key to continue, X + enter to go back to menu, S to skip: $black  "
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu       
+if (($reply == 's') || ($reply == 'S')) goto test303   
+print "$magenta ---------------------------------------------------------------- $black \n"
+./myshell << ENDOFSTDIN
+clr
+quit
+ENDOFSTDIN
+print "  \n"
+print "$magenta ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \n"
+print " 3.2. end of test 3.2 \n"
+print "$blue clr \n"
+print " quit $magenta \n"
+print "      should have cleared screen \n"
+test303:
+print "$magenta ================================================================\n"
+print "      3.3 - dir - list directory \n"
+print " press enter key to continue, X + enter to go back to menu, S to skip: $black  "
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu 
+if (($reply == 's') || ($reply == 'S')) goto test304         
+print "$magenta ---------------------------------------------------------------- $black \n"
+./myshell << ENDOFSTDIN
+dir $thisdir
+dir
+dir . .
+quit
+ENDOFSTDIN
+print "  \n"
+print "$magenta ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \n"
+print " 3.3. end of test 3.3 \n"
+print "$blue dir $thisdir \n"
+print " dir \n"
+print " dir . . \n"
+print " quit $magenta \n"
+print "      should have listed directory $thisdir \n"
+print "      followed by listing of $testdir \n"
+print "      followed by listing of $testdir twice \n" 
+test304:
+print "$magenta ================================================================\n"
+print "      3.4 - environment \n"
+print " press enter key to continue, X + enter to go back to menu, S to skip: $black  "
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu
+if (($reply == 's') || ($reply == 'S')) goto test305        
+print "$magenta ---------------------------------------------------------------- $black \n"
+./myshell << ENDOFSTDIN
+environ
+quit
+ENDOFSTDIN
+print "  \n"
+print "$magenta ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \n"
+print " 3.4. end of test 3.4 \n"
+print "$blue environ \n"
+print " quit $magenta \n"
+print "      should have listed environment \n"
+print "      check for SHELL=$testdir/myshell \n"
+test305:
+print "$magenta ================================================================\n"
+print "      3.5 - echo and pause \n"
+print " press enter key to continue, X + enter to go back to menu, S to skip: $black  "
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu
+if (($reply == 's') || ($reply == 'S')) goto test306        
+print "$magenta ---------------------------------------------------------------- $black \n"
+./myshell << ENDOFSTDIN
+echo this is a comment line
+echo
+echo
+echo followed by two blank comments
+echo check for no print of characters during this pause
+pause
+quit
+quit
+ENDOFSTDIN
+print "  \n"
+print "$magenta ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \n"
+print " 3.5. end of test 3.5 \n"
+print "      should have output five lines of comment and paused: \n"
+print "        . =>this is a comment line  \n"
+print "        . => \n"
+print "        . => \n"
+print "        . =>followed by two blank comments  \n"
+print "        . =>check for no echo of characters during this pause \n" 
+print "        . =>Press Enter to continue ... (or something like that) \n"
+print "        . => \n" 
+print "      check for no echo of input during pause \n"
+test306:
+print "$magenta ================================================================\n"
+print "      3.6 - help \n"
+print " press enter key to continue, X + enter to go back to menu, S to skip: $black  "
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu
+if (($reply == 's') || ($reply == 'S')) goto test307        
+print "$magenta ---------------------------------------------------------------- $black \n"
+./myshell << ENDOFSTDIN
+help
+quit
+ENDOFSTDIN
+print "  \n"
+print "$magenta ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \n"
+print " 3.6. end of test 3.6 \n"
+print "$blue help \n"
+print " quit $magenta \n"
+print "      check that 'more' is being used to output readme \n"
+test307:
+print "$magenta ================================================================\n"
+print "      3.7 - help from another directory \n"
+print " press enter key to continue, X + enter to go back to menu, S to skip: $black  "
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu
+if (($reply == 's') || ($reply == 'S')) goto test308        
+print "$magenta ---------------------------------------------------------------- $black \n"
+./myshell << ENDOFSTDIN
+cd ..
+help
+cd 
+quit
+ENDOFSTDIN
+print "  \n"
+print "$magenta ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \n"
+print " 3.7. end of test 3.7 \n"
+print "$blue cd .. \n"
+print " help \n"
+print " cd \n"
+print " quit $magenta \n"
+print "      ensure change of directory occurs and help still displays \n"
+print "      (should be in $thisdir) \n"
+print " ================================================================ \n"
+test308:
+print "$magenta press enter key to continue, X + enter to go back to menu $black  "
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu
+
+test4:
+  
+print "$magenta ================================================================\n"
+print " test 4 - external commands \n"
+print "---------------------------------------------------------------- $black \n"
+./myshell << ENDOFSTDIN
+$thisdir/cmndline
+$thisdir/getenv PARENT
+$thisdir/getenv parent
+$thisdir/cmndline 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+quit
+ENDOFSTDIN
+print "$magenta ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \n"
+print " 4.1. - end of test 4 \n"
+print "      cmndline with only arg[0] \n"
+print "      report of 'PARENT'/'parent' environment variable \n"
+print "      cmndline with 15 arguments - to arg[15] \n"
+print " ================================================================ \n"
+
+print " press enter key to continue, X + enter to go back to menu $black  "
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu
+
+test5:
+  
+print "$magenta ================================================================\n"
+print " test 5 - i/o redirection \n"
+print "      5.1 - output redirection external commands \n"
+print " press enter key to continue, X + enter to go back to menu, S to skip: $black  "
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu
+if (($reply == 's') || ($reply == 'S')) goto test502             
+print "$magenta ---------------------------------------------------------------- $black \n"
+rm junk
+./myshell << ENDOFSTDIN
+ls -al .. > junk
+ls -al . >> junk
+quit
+ENDOFSTDIN
+print "  \n"
+print "$magenta ---------------------------------------------------------------- $black \n"
+more junk
+print "  \n"
+print "$magenta ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \n"
+print " 5.1. end of test 5.1 \n"
+print "$blue ls -al .. > junk \n"
+print " ls -al . >> junk \n"
+print " quit $magenta \n"
+print "      output under the line should contain: \n"
+print "         listing of $thisdir \n"
+print "         listing of $testdir \n"
+test502:
+print "$magenta ================================================================\n"
+print "      5.2 - output redirection on internal command 'dir' \n"
+print " press enter key to continue, X + enter to go back to menu, S to skip: $black  "
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu       
+if (($reply == 's') || ($reply == 'S')) goto test503   
+print "$magenta ---------------------------------------------------------------- $black \n"
+rm junk
+./myshell << ENDOFSTDIN
+dir .. > junk
+dir . >> junk
+quit
+ENDOFSTDIN
+print "  \n"
+print "$magenta ---------------------------------------------------------------- $black \n"
+more junk
+print "  \n"
+print "$magenta ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \n"
+print " 5.2. end of test 5.2 \n"
+print "$blue dir .. > junk \n"
+print " dir . >> junk \n"
+print " quit $magenta \n"
+print "      output under the line should contain \n"
+print "         listing of $thisdir \n"
+print "         listing of $testdir \n"
+test503:
+print "$magenta ================================================================\n"
+print "      5.3 - output redirection on internal command 'help' \n"
+print " press enter key to continue, X + enter to go back to menu, S to skip: $black  "
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu       
+if (($reply == 's') || ($reply == 'S')) goto test504   
+print "$magenta ---------------------------------------------------------------- $black \n"
+rm junk
+./myshell << ENDOFSTDIN
+help > junk
+quit
+ENDOFSTDIN
+print "  \n"
+print "$magenta ---------------------------------------------------------------- $black \n"
+cat junk
+print "  \n"
+print "$magenta ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \n"
+print " 5.3. end of test 5.3 \n"
+print "$blue help > junk \n"
+print " quit $magenta \n"
+print "      output of 'readme' from 'cat junk' under the line \n"
+test504:
+print "$magenta ================================================================\n"
+print "      5.4 - output redirection on internal command 'environ' \n"
+print " press enter key to continue, X + enter to go back to menu, S to skip: $black  "
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu       
+if (($reply == 's') || ($reply == 'S')) goto test505   
+print "$magenta ---------------------------------------------------------------- $black \n"
+rm junk
+./myshell << ENDOFSTDIN
+environ > junk
+quit
+ENDOFSTDIN
+print "  \n"
+print "$magenta ---------------------------------------------------------------- $black \n"
+cat junk
+print "  \n"
+print "$magenta ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \n"
+print " 5.4. end of test 5.4 \n"
+print "$blue environ > junk \n"
+print " quit $magenta \n"
+print "      output of environment should be under the line \n"
+test505:
+print "$magenta ================================================================\n"
+print "      5.5 - output redirection on internal command 'echo' \n"
+print " press enter key to continue, X + enter to go back to menu, S to skip: $black  "
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu       
+if (($reply == 's') || ($reply == 'S')) goto test506   
+print "$magenta ---------------------------------------------------------------- $black \n"
+rm junk
+./myshell << ENDOFSTDIN
+echo This line should have been redirected to junk > junk
+quit
+ENDOFSTDIN
+print "  \n"
+print "$magenta ---------------------------------------------------------------- $black \n"
+cat junk
+print "  \n"
+print "$magenta ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \n"
+print " 5.5. end of test 5.5 \n"
+print "$blue print This line should have been redirected to junk > junk \n"
+print " quit $magenta \n"
+print "      under the line: \n"
+print "         'This line should have been redirected to junk'  \n"
+test506:
+print "$magenta ================================================================\n"
+print "      5.6 - input redirection to external command \n"
+print " press enter key to continue, X + enter to go back to menu, S to skip: $black  "
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu       
+if (($reply == 's') || ($reply == 'S')) goto test507   
+print "$magenta ---------------------------------------------------------------- $black \n"
+./myshell << ENDOFSTDIN
+sort < ../goldfish
+quit
+ENDOFSTDIN
+print "  \n"
+print "$magenta ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \n"
+print " 5.6. end of test 5.6 \n"
+print "$blue sort < ../goldfish \n"
+print " quit $magenta \n"
+print "      'a b c d goldfish' } \n"
+print "      'm n o goldfish'   } from shell \n"
+print "      'o s a r'          } \n"
+test507:
+print "$magenta ================================================================\n"
+print "      5.7 - input and output redirection to external command \n"
+print " press enter key to continue, X + enter to go back to menu, S to skip: $black  "
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu       
+if (($reply == 's') || ($reply == 'S')) goto test508   
+print "$magenta ---------------------------------------------------------------- $black \n"
+rm junk
+./myshell << ENDOFSTDIN
+sort < ../goldfish > junk
+quit
+ENDOFSTDIN
+print "  \n"
+print "$magenta ---------------------------------------------------------------- $black \n"
+cat junk
+print "  \n"
+print "$magenta ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \n"
+print " 5.7. end of test 5.7 \n"
+print "$blue sort < ../goldfish > junk \n"
+print " quit $magenta \n" 
+print "      'a b c d goldfish' } \n"
+print "      'm n o goldfish'   } from 'cat junk' under the line \n"
+print "      'o s a r'          } \n"
+test508:
+print " press enter key to continue, X + enter to go back to menu $black  "
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu
+
+test6:
+  
+print "$magenta ================================================================\n"
+print " test 6 - background execution \n"
+print " press enter key to continue, X + enter to go back to menu, S to skip: $black  "
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu       
+if (($reply == 's') || ($reply == 'S')) goto test601  
+print "$magenta ---------------------------------------------------------------- $black \n"
+./myshell << ENDOFSTDIN
+../process 2 &
+../process 3
+quit
+ENDOFSTDIN
+print "  \n"
+print "$magenta ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \n"
+print " 6.0. end of test 6.0 \n"
+print "      concurrent running of two 'process's  \n"
+test601:
+print "$magenta ================================================================\n"
+print "      6.1 - background execution with o/p redirection \n"
+print " press enter key to continue, X + enter to go back to menu, S to skip: $black  "
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu       
+if (($reply == 's') || ($reply == 'S')) goto test602   
+print "$magenta ---------------------------------------------------------------- $black \n"
+rm junk
+./myshell << ENDOFSTDIN
+../process 2 > junk &
+../process 3
+quit
+ENDOFSTDIN
+print "  \n"
+print "$magenta ---------------------------------------------------------------- $black \n"
+cat junk
+print "  \n"
+print "$magenta ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ \n"
+print " 6.1. end of test 6.1. \n"
+print "      three ticks above the line \n"
+print "      two ticks below the line \n"
+test602:
+print " press enter key to continue, X + enter to go back to menu $black  "
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu
+
+testC:
+  
+print "$magenta ================================================================\n"
+print " test C - list source \n"
+print " ---------------------------------------------------------------- $black \n"
+more makefile *.c *.h readme
+print "  \n"
+print "$magenta ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
+print " C.0. end of test C.0 \n"
+print " press enter key to continue, X + enter to exit $black  "
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto testX
+goto menu
+
+testX:
+  
+print "$red ================================================================ $black \n"
