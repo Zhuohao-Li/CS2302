@@ -1,0 +1,85 @@
+--------
+    myshell @copyright: Zhuohao Lee
+--------
+
+Version:
+--------
+    1.0
+--------
+
+Authors:
+--------
+    Zhuohao Lee
+--------
+
+Description:
+--------
+    This is the help document of the shell, I call it as myshell.
+    Shell is a program that presents a command line interface which allows you to control your computer using commands entered with a keyboard instead of controlling graphical user interfaces (GUIs) with a mouse/keyboard combination.
+--------
+
+How to Get Start?
+--------
+    cd the directory where myshell.c is, compline it with `gcc myshell.c -o myshell`, then run `./myshell`.
+
+    You can find yourself already in the current directory with a '----->' waiting input stream.
+--------
+
+Commands:
+--------
+    help - Display the readme file
+
+	quit - Terminate myshell
+
+	clr - Clear the screen.
+
+	echo <comment> - Display<comment>on the display followed by a newline (multiple spaces/tabs may be reduced to a single space).
+
+	environ - List all the environment strings.
+
+	dir <directory> - List the contents of directory<directory>.
+    
+	cd <directory> - Change the current default directory to <directory>. If the <directory> is not present, report the current directory. If the directory does not exist, an appropriate error should be reported. 
+
+    pause - Stop operation of the shell until 'Enter' is pressed.
+--------
+
+Outside Commands
+--------
+    Other command line inputs are interpreted as program calls, and the shell creates and executes this program as its own subprocess by `fork()` and `exec()`
+--------
+
+Shell Scripts
+--------
+    You can also use `myshell batchfile_name` to execute shell script 'batchfile_name'
+--------
+
+Environment
+--------
+    myshell use extern to directly use the environment variable environ saved by Linux system, all environment variables should be displayed.
+
+    A printing loop is what we required, and modifying environment variables can be realized by using functions such as getenv(),setenv(), etc. In addition, it is also used at the beginning of the program.
+    
+    The shmget() function creates a section of shared memory to store information about the background process table, which can be accessed by all
+    
+    It is a reasonable choice to use shared memory to store the background process table.
+--------
+
+Redirection
+--------
+    myshell can support I/O redirection. After entering the command to be executed, just enter '<' and then the inputfile. When the program executes the command, it will be read from the inputfile instead of the standard input stream (stdin). Enter '>' or'>>' with outputfile following, the executed results will be written in the outputfile instead of the stdout.
+
+    '>' means overwrite, '>>' means append write.
+
+    If there's no corresponding output file, the program will generate a new one.
+
+    eg. `echo <batch.txt >> test.txt` will write contents in batch.txt after test.txt
+--------
+
+Background program execution
+--------   
+    myshell can support background program execution. after entering the command, a space and the character' & 'can make the command executed in the background without blocking the main process.
+
+    & - to be placed at the end of a command. Will keep the parent process from waiting on the child.
+--------
+	
