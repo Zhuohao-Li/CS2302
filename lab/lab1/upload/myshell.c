@@ -1,3 +1,7 @@
+// simple linux shell program based on C.
+// author: zhuohao lee
+// last update: 25/03/2022
+
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,7 +56,7 @@ int main(int argc, char **argv) {
   char *readmepath;          // readme pathname
   shellstatus status;        // status structure
   int execargs;              // execute command in args flag
-  int i;                     // working index
+  int i;                     // additional working index in the args array
 
   // parse command line for batch input
 
@@ -63,6 +67,7 @@ int main(int argc, char **argv) {
     case 2:  // possible batch/script
              // TODO
       if (!(instream = fopen(argv[1], "r"))) {
+        // if the file is unreadable
         syserrmsg("opening script file", argv[1]);
         instream = stdin;
       } else {
@@ -143,7 +148,8 @@ int main(int argc, char **argv) {
             if (chdir(args[1])) {  // else change directory
               syserrmsg("change directory failed", NULL);
             } else {
-              strcpy(cwdbuf, "PWD=");  // & set environment value
+              strcpy(cwdbuf,
+                     "PWD=");  // & set environment value by changing PWD
               getcwdstr(&cwdbuf[4], sizeof(cwdbuf) - 4);
               if (putenv(strdup(cwdbuf)))
                 syserrmsg("change of PWD environment variable failed", NULL);
@@ -155,7 +161,7 @@ int main(int argc, char **argv) {
         // "clr" command
         else if (!strcmp(args[0], "clr")) {
           // TODO
-          args[0] = "clear";
+          args[0] = "clear";  // directly use the internal calls
           args[1] = NULL;
         }
 
@@ -207,7 +213,7 @@ int main(int argc, char **argv) {
         // keyboard echo and returning when enter/return is pressed
         else if (!strcmp(args[0], "pause")) {
           // TODO
-          getpass("Press Enter to continue ...");
+          getpass("Press 'Enter' to continue ...");
           execargs = FALSE;  // no need for further exec
         }
 
@@ -244,7 +250,7 @@ void check4redirection(char **args, shellstatus *sstatus) {
     if (!strcmp(*args, "<")) {
       // TODO
       *args = NULL;     // delimit args
-      if (*(++args)) {  // file exist and permission OK?
+      if (*(++args)) {  // file exist and permission allowed?
         if (access(*args, F_OK)) {
           errmsg(*args, "does not exist for i/p redirection.");
         } else if (access(*args, R_OK)) {
@@ -263,11 +269,11 @@ void check4redirection(char **args, shellstatus *sstatus) {
       // TODO
       if (!strcmp(*args, ">")) {  // simple output redirection
         sstatus->outmode = "w";
-      } else {  // output redirection - append */
+      } else {  // output redirection - append mode
         sstatus->outmode = "a";
       }
       *args = NULL;     // delimit args
-      if (*(++args)) {  // permission OK ?
+      if (*(++args)) {  // permission allowed ?
         if (!access(*args, W_OK) || access(*args, F_OK)) {
           sstatus->outfile = *args;
         } else {

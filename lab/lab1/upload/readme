@@ -27,13 +27,13 @@ How to Get Start?
 
 Commands:
 --------
-    help - Display the readme file
+     help - Display the readme file
 
 	quit - Terminate myshell
 
 	clr - Clear the screen.
 
-	echo <comment> - Display<comment>on the display followed by a newline (multiple spaces/tabs may be reduced to a single space).
+	echo <comment> - Display <comment> on the display followed by a newline (multiple spaces/tabs may be reduced to a single space).
 
 	environ - List all the environment strings.
 
@@ -51,16 +51,16 @@ Outside Commands
 
 Shell Scripts
 --------
-    You can also use `myshell batchfile_name` to execute shell script 'batchfile_name'
+    You can also use `myshell batchfile` to execute shell script 'batchfile'.
+
+    My shell will execute batchfile from the first line to the last. After it, myshell will quit.
 --------
 
 Environment
 --------
     myshell use extern to directly use the environment variable environ saved by Linux system, all environment variables should be displayed.
 
-    A printing loop is what we required, and modifying environment variables can be realized by using functions such as getenv(),setenv(), etc. In addition, it is also used at the beginning of the program.
-    
-    The shmget() function creates a section of shared memory to store information about the background process table, which can be accessed by all
+    A printing loop is what we required, and modifying environment variables can be realized by a pointer. Basically, we can use a 2-dimension pointer with the value of environ and go along with a loop to traverse pointer by lines. In addition, it is also used at the beginning of the program.
     
     It is a reasonable choice to use shared memory to store the background process table.
 --------
@@ -83,3 +83,9 @@ Background program execution
     & - to be placed at the end of a command. Will keep the parent process from waiting on the child.
 --------
 	
+Personal Thoughts
+--------
+	In this project,  I've experienced the process of implementing a simple UNIX shell program called myshell. Basically, I've learned much about shell and enhanced mu understandings of the I/o redirections, backgrounds program execution. The project is much more complicated than I thought before. But with the help of teacher and TAs, I fell very fulfilled when I successfully passed test program.
+
+	I become more familiar with the Linux C instructions and also C programming in Linux.
+--------
