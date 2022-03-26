@@ -1,0 +1,9 @@
+a.out
+in.txt
+less
+out.txt
+pid
+proc_pid.c
+shell
+shell2
+shell.c

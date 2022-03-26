@@ -1,0 +1,1 @@
+cmd_/home/chrisxue/OS-Lab/proj2/pid/pid.ko := ld -r -m elf_x86_64  -z max-page-size=0x200000 -T ./scripts/module-common.lds --build-id  -o /home/chrisxue/OS-Lab/proj2/pid/pid.ko /home/chrisxue/OS-Lab/proj2/pid/pid.o /home/chrisxue/OS-Lab/proj2/pid/pid.mod.o ;  true
