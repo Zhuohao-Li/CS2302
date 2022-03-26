@@ -1,0 +1,20 @@
+1c
+1c.c
+1c.o
+batch
+makefile
+test
+test2
+-rw-rw-r-- 1 bdhudd bdhudd   39 Nov 29 04:04 test2
+
+.:
+total 76
+drwxrwxr-x 2 bdhudd bdhudd  4096 Nov 29 04:04 .
+drwxrwxr-x 6 bdhudd bdhudd  4096 Nov 28 21:50 ..
+-rwxrwxr-x 1 bdhudd bdhudd 17992 Nov 29 04:02 1c
+-rw-rw-r-- 1 bdhudd bdhudd 12977 Nov 28 22:53 1c.c
+-rw-rw-r-- 1 bdhudd bdhudd 16320 Nov 29 04:02 1c.o
+-rw-rw-r-- 1 bdhudd bdhudd    45 Nov 29 04:03 batch
+-rw-rw-r-- 1 bdhudd bdhudd   344 Nov 28 21:57 makefile
+-rw-rw-r-- 1 bdhudd bdhudd    66 Nov 29 04:04 test
+-rw-rw-r-- 1 bdhudd bdhudd    39 Nov 29 04:04 test2

@@ -1,0 +1,2 @@
+gcc -g -Wall -c 1c.c -o 1c.o
+makefile:14: recipe for target '1c.o' failed

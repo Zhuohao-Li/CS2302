@@ -1,0 +1,4 @@
+ls > test
+ls >> test
+ls > test2
+dir >> test2

@@ -1,0 +1,24 @@
+NAME
+    	Project1C - Unix Shell
+DESCRIPTION
+	Project1C is a custom unix shell made to perform basic command line commands along with input/output redirection. Project1C takes user input and parses it by white space. It uses fork() and exec() functions in C to perform commands. These functions allow execution of commands in the background while other commands can be entered. In regards in input/output redirection: Input redirection allows the program to read commands from a file rather than the terminal. Output redirection allows the program to output data to a file instead of the Terminal.
+HOW TO USE
+	Project1C has to be compiled by entering the make command when in the same directory as Project1C. It can then be launched in one of two user modes. The first is user mode which is achieved by entering './1c.c' with the ' ' included. User mode functions by taking user input and performing commands. The other mode is the scripted mode which is achieved by entering './1c.c' with the ' ' excluded, followed by a filename. Scripted mode functions by taking the file, with the filename provided by the user, it will then execute the commands within the file and quit once its completed.
+
+COMMANDS
+	help - displays the readme file
+	quit - terminates Project1C
+	clear/clr - clears text from display
+	echo - displays arguments 
+	environ - displays environment 
+	dir - displays contents of the current directory
+	dir'directory without ' '' - displays contents of the directory entered
+	cd - displays the current directory, which will be the one Project1C is in
+
+	>'filename without ' '' will create a file with the name given. If the file already exists it will be erased, and if no file of the given name exists it will be created. Then the 	file will be filled with output from the program rather than having it output to the 		display
+
+	>>'filename without ' '' will create a file with the name given. If the file already exists it will be erased, and if no file of the given name exists it will be created. Then the file will be appended with output from the program if the file exists. If not a new file will be filled with the output, either way this will be done rather than having it output to the display.
+
+	<'filename without ' '' The program will read the commands in the file and execute them. This will be done rather than the program taking input from the user.
+
+	& - to be placed at the end of a command. Will keep the parent process from waiting on the child.
