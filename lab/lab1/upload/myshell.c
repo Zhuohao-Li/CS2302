@@ -111,7 +111,8 @@ int main(int argc, char **argv) {
     // set up prompt
     // TODO
     if (instream == stdin) {
-      printf("%s%s", getcwdstr(cwdbuf, sizeof(cwdbuf)), prompt);
+      printf("%s%s", getcwdstr(cwdbuf, sizeof(cwdbuf)),
+             prompt);  // can directly get CWD following a prompt ---->
       fflush(stdout);
     }
     // fputs(prompt, ostream);
@@ -171,7 +172,7 @@ int main(int argc, char **argv) {
           for (i = MAX_ARGS - 1; i > 1; i--)
             args[i] = args[i - 1];  // shunt arguments
           args[0] = "ls";
-          args[1] = "-al";
+          args[1] = "-al";  // ls -al, is the internal implement in OS shell
           if (!args[2]) {
             args[2] = ".";  // if no arg set current directory
             args[3] = NULL;
@@ -184,7 +185,7 @@ int main(int argc, char **argv) {
           arg = &args[1];                   // pointer into arg lists
           ostream = redirected_op(status);  // prepare any i/o redirection
           while (*arg) fprintf(ostream, "%s ", *arg++);
-          fprintf(ostream, "\n");
+          fprintf(ostream, "\n");  // get from stdin and directed to stdout
           if (ostream != stdout) fclose(ostream);
           execargs = FALSE;  // no need for further exec
         }
@@ -192,18 +193,18 @@ int main(int argc, char **argv) {
         // "environ" command
         else if (!strcmp(args[0], "environ")) {
           // TODO
-          ostream = redirected_op(status);
+          ostream = redirected_op(status);  // get the redirected status
 
           char **envstr = environ;
-          while (*envstr)  // print out environment
-            fprintf(ostream, "%s\n", *envstr++);
+          while (*envstr)                         // print out environment
+            fprintf(ostream, "%s\n", *envstr++);  // loop implementation
           if (ostream != stdout) fclose(ostream);
           execargs = FALSE;  // no need for further exec
         }
 
         // "help" command
         else if (!strcmp(args[0], "help")) {
-          args[0] = "more";
+          args[0] = "more";  // 'more' indicates continueing to read readme file
           args[1] = readmepath;
           args[2] = NULL;
         }
@@ -249,13 +250,13 @@ void check4redirection(char **args, shellstatus *sstatus) {
     // input redirection
     if (!strcmp(*args, "<")) {
       // TODO
-      *args = NULL;     // delimit args
-      if (*(++args)) {  // file exist and permission allowed?
-        if (access(*args, F_OK)) {
+      *args = NULL;                 // delimit args
+      if (*(++args)) {              // file exist and permission allowed?
+        if (access(*args, F_OK)) {  // file
           errmsg(*args, "does not exist for i/p redirection.");
-        } else if (access(*args, R_OK)) {
+        } else if (access(*args, R_OK)) {  // permission
           errmsg(*args, "is not readable for i/p redirection.");
-        } else {
+        } else {  // both are ok
           sstatus->infile = *args;
         }
       } else {
@@ -267,14 +268,15 @@ void check4redirection(char **args, shellstatus *sstatus) {
     // output direction
     else if (!strcmp(*args, ">") || !strcmp(*args, ">>")) {
       // TODO
-      if (!strcmp(*args, ">")) {  // simple output redirection
-        sstatus->outmode = "w";
-      } else {  // output redirection - append mode
-        sstatus->outmode = "a";
+      if (!strcmp(*args, ">")) {  //  output redirection '>' - overlap mode
+        sstatus->outmode = "w";   // write mode
+      } else {                    // output redirection '>>' - append mode
+        sstatus->outmode = "a";   // append mode
       }
       *args = NULL;     // delimit args
-      if (*(++args)) {  // permission allowed ?
-        if (!access(*args, W_OK) || access(*args, F_OK)) {
+      if (*(++args)) {  // permission allowed
+        if (!access(*args, W_OK) ||
+            access(*args, F_OK)) {  // check file and write permission
           sstatus->outfile = *args;
         } else {
           errmsg(*args, "is not writable/creatable for o/p redirection.");

@@ -23,11 +23,13 @@ How to Get Start?
     cd the directory where myshell.c is, compline it with `gcc myshell.c -o myshell`, then run `./myshell`.
 
     You can find yourself already in the current directory with a '----->' waiting input stream.
+
+	Current directory is implemented by CWD. I changed the default prompt style for I like single arrow more.
 --------
 
 Commands:
 --------
-     help - Display the readme file
+	help - Display the readme file
 
 	quit - Terminate myshell
 
@@ -47,13 +49,15 @@ Commands:
 Outside Commands
 --------
     Other command line inputs are interpreted as program calls, and the shell creates and executes this program as its own subprocess by `fork()` and `exec()`
+
+	Shell will execute parent process or Chile process in terms of PID. More details in OS theory.
 --------
 
 Shell Scripts
 --------
     You can also use `myshell batchfile` to execute shell script 'batchfile'.
 
-    My shell will execute batchfile from the first line to the last. After it, myshell will quit.
+    My shell will execute batchfile from the first line to the last. After it, myshell will quit. If there's no files matching it, you will get an error message. 
 --------
 
 Environment
@@ -63,6 +67,8 @@ Environment
     A printing loop is what we required, and modifying environment variables can be realized by a pointer. Basically, we can use a 2-dimension pointer with the value of environ and go along with a loop to traverse pointer by lines. In addition, it is also used at the beginning of the program.
     
     It is a reasonable choice to use shared memory to store the background process table.
+
+	SHELL environment variable is set by where's myshell.c program is.
 --------
 
 Redirection
