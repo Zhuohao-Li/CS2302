@@ -7,14 +7,14 @@ OS Eercises - Project 2 - HOST dispatcher - Exercise 7
         hostd is fcfs 'dispatcher' that reads in a list of 'jobs' from a file
         and 'dispatches' them in a first-come-first-served manner.
 
-        time resolution is one second (although this can be changed). 
+        time resolution is one second (although this can be changed).
 
     usage
-   
+
         hostd <dispatch file>
- 
+
         where
-            <dispatch file> is list of process parameters as specified 
+            <dispatch file> is list of process parameters as specified
                 for assignment 2.
 
     functionality
@@ -22,11 +22,9 @@ OS Eercises - Project 2 - HOST dispatcher - Exercise 7
     1. Initialize dispatcher queue;
     2. Fill dispatcher queue from dispatch list file;
     3. Start dispatcher timer;
-    4. While there's anything in the queue or there is a currently running process:
-        i. If a process is currently running;
-            a. Decrement process remainingcputime;
-            b. If times up:
-                A. Send SIGINT to the process to terminate it;
+    4. While there's anything in the queue or there is a currently running
+process: i. If a process is currently running; a. Decrement process
+remainingcputime; b. If times up: A. Send SIGINT to the process to terminate it;
                 B. Free up process structure memory
        ii. If no process currently running &&
             dispatcher queue is not empty &&
@@ -51,122 +49,117 @@ author:  Dr Ian G Graham, ian.graham@griffith.edu.au
 #define VERSION "1.0"
 
 /******************************************************
- 
+
    internal functions
-   
+
  ******************************************************/
 
-char * StripPath(char*);
+char *StripPath(char *);
 void PrintUsage(FILE *, char *);
 void SysErrMsg(char *, char *);
 void ErrMsg(char *, char *);
-char* InitAnsFile(char *);
+char *InitAnsFile(char *);
 
 /* global storage */
 
-
 /******************************************************/
 
-int main (int argc, char *argv[])
-{
-    char * inputfile;             // job dispatch file
-    FILE * inputliststream;
-    PcbPtr inputqueue = NULL;     // input queue buffer
-    PcbPtr currentprocess = NULL; // current process
-    PcbPtr process = NULL;        // working pcb pointer
-    int timer = 0;                // dispatcher timer 
+int main(int argc, char *argv[]) {
+  char *inputfile;  // job dispatch file
+  FILE *inputliststream;
+  PcbPtr inputqueue = NULL;      // input queue buffer
+  PcbPtr currentprocess = NULL;  // current process
+  PcbPtr process = NULL;         // working pcb pointer
+  int timer = 0;                 // dispatcher timer
 
-//  0. Parse command line
+  //  0. Parse command line
 
-    if (argc == 2) inputfile = argv[1];
-    else PrintUsage (stderr, argv[0]);
-    char * ans_file = InitAnsFile(inputfile);
+  if (argc == 2)
+    inputfile = argv[1];
+  else
+    PrintUsage(stderr, argv[0]);
+  char *ans_file = InitAnsFile(inputfile);
 
-//  1. Initialize dispatcher queue;
-//     (already initialised in assignments above)
-    
-//  2. Fill dispatcher queue from dispatch list file;
-    
-    if (!(inputliststream = fopen(inputfile, "r"))) { // open it
-          SysErrMsg("could not open dispatch list file:", inputfile);
-          exit(2);
+  //  1. Initialize dispatcher queue;
+  //     (already initialised in assignments above)
+
+  //  2. Fill dispatcher queue from dispatch list file;
+
+  if (!(inputliststream = fopen(inputfile, "r"))) {  // open it
+    SysErrMsg("could not open dispatch list file:", inputfile);
+    exit(2);
+  }
+
+  while (!feof(inputliststream)) {  // put processes into input_queue
+    process = createnullPcb();
+    if (fscanf(inputliststream, "%d, %d, %d, %d, %d, %d, %d, %d",
+               &(process->arrivaltime), &(process->priority),
+               &(process->remainingcputime), &(process->mbytes),
+               &(process->req.printers), &(process->req.scanners),
+               &(process->req.modems), &(process->req.cds)) != 8) {
+      free(process);
+      continue;
+    }
+    process->status = PCB_INITIALIZED;
+    process->ans_file = ans_file;
+    inputqueue = enqPcb(inputqueue, process);
+  }
+
+  //  3. Start dispatcher timer;
+  //     (already set to zero above)
+
+  //  4. While there's anything in the queue or there is a currently running
+  //  process:
+
+  while (inputqueue || currentprocess) {
+    //      i. If a process is currently running;
+
+    if (currentprocess) {
+      //          a. Decrement process remainingcputime;
+
+      currentprocess->remainingcputime -= QUANTUM;
+
+      //          b. If times up:
+
+      if (currentprocess->remainingcputime <= 0) {
+        //             A. Send SIGINT to the process to terminate it;
+
+        terminatePcb(currentprocess);
+
+        //             B. Free up process structure memory
+
+        free(currentprocess);
+        currentprocess = NULL;
+      }
     }
 
-    while (!feof(inputliststream)) {  // put processes into input_queue
-        process = createnullPcb();
-        if (fscanf(inputliststream,"%d, %d, %d, %d, %d, %d, %d, %d",
-             &(process->arrivaltime), &(process->priority),
-             &(process->remainingcputime), &(process->mbytes),
-             &(process->req.printers), &(process->req.scanners),
-             &(process->req.modems), &(process->req.cds)) != 8) {
-            free(process);
-            continue;
-        }
-        process->status = PCB_INITIALIZED;
-        process->ans_file = ans_file;
-        inputqueue = enqPcb(inputqueue, process);
+    //     ii. If no process now currently running &&
+    //           dispatcher queue is not empty &&
+    //           arrivaltime of process at head of queue is <= dispatcher timer:
+
+    if (!currentprocess && inputqueue && inputqueue->arrivaltime <= timer) {
+      //          a. Dequeue process and start it (fork & exec)
+      //          b. Set it as currently running process;
+
+      currentprocess = deqPcb(&inputqueue);
+      startPcb(currentprocess);
     }
 
-//  3. Start dispatcher timer;
-//     (already set to zero above)
-        
-//  4. While there's anything in the queue or there is a currently running process:
+    //     iii. sleep for one second;
 
-    while (inputqueue || currentprocess ) {
+    sleep(QUANTUM);
 
-//      i. If a process is currently running;
+    //      iv. Increment dispatcher timer;
 
-        if (currentprocess) {
+    timer += QUANTUM;
 
-//          a. Decrement process remainingcputime;
+    //       v. Go back to 4.
+  }
 
-            currentprocess->remainingcputime -= QUANTUM;
-            
-//          b. If times up:
+  //    5. Exit
 
-            if (currentprocess->remainingcputime <= 0) {
-                
-//             A. Send SIGINT to the process to terminate it;
-
-                terminatePcb(currentprocess);
-                
-//             B. Free up process structure memory
-
-                free(currentprocess);
-                currentprocess = NULL;
-            }
-        }
-        
-//     ii. If no process now currently running &&
-//           dispatcher queue is not empty &&
-//           arrivaltime of process at head of queue is <= dispatcher timer:
-
-        if (!currentprocess && inputqueue && inputqueue->arrivaltime <= timer) {
-
-//          a. Dequeue process and start it (fork & exec)
-//          b. Set it as currently running process;
-            
-            currentprocess = deqPcb( &inputqueue);
-            startPcb( currentprocess);
-        }
-
-//     iii. sleep for one second;
-
-        sleep(QUANTUM);
-            
-//      iv. Increment dispatcher timer;
-
-        timer += QUANTUM;
-            
-//       v. Go back to 4.
-
-    }
-        
-//    5. Exit
-
-    exit (0);
-}    
-
+  exit(0);
+}
 
 /*******************************************************************
 
@@ -181,77 +174,73 @@ char * StripPath(char * pathname);
         returns NULL
 *******************************************************************/
 
-char * StripPath(char * pathname)
-{
-    char * filename = pathname;\
+char *StripPath(char *pathname) {
+  char *filename = pathname;
 
-    if (filename && *filename) {           // non-zero length string
-        filename = strrchr(filename, '/'); // look for last '/'
-        if (filename)                      // found it
-            if (*(++filename))             //  AND file name exists
-                return filename;
-            else
-                return NULL;
-        else
-            return pathname;               // no '/' but non-zero length string
-    }                                      // original must be file name only
-    return NULL;
+  if (filename && *filename) {          // non-zero length string
+    filename = strrchr(filename, '/');  // look for last '/'
+    if (filename)                       // found it
+      if (*(++filename))                //  AND file name exists
+        return filename;
+      else
+        return NULL;
+    else
+      return pathname;  // no '/' but non-zero length string
+  }                     // original must be file name only
+  return NULL;
 }
 
 /*******************************************************
  * print usage
  ******************************************************/
-void PrintUsage(FILE * stream, char * progname)
-{
-    if(!(progname = StripPath(progname))) progname = DEFAULT_NAME;
-    
-    fprintf(stream,"\n"
-"%s process dispatcher (version " VERSION "); usage:\n\n"
-"  %s <dispatch file>\n"
-" \n"
-"  where <dispatch file> is list of process parameters \n\n",
-    progname,progname);
+void PrintUsage(FILE *stream, char *progname) {
+  if (!(progname = StripPath(progname))) progname = DEFAULT_NAME;
 
-    exit(127);
+  fprintf(stream,
+          "\n"
+          "%s process dispatcher (version " VERSION
+          "); usage:\n\n"
+          "  %s <dispatch file>\n"
+          " \n"
+          "  where <dispatch file> is list of process parameters \n\n",
+          progname, progname);
+
+  exit(127);
 }
 /********************************************************
  * print an error message on stderr
  *******************************************************/
 
-void ErrMsg(char * msg1, char * msg2)
-{
-    if (msg2)
-        fprintf(stderr,"ERROR - %s %s\n", msg1, msg2);
-    else
-        fprintf(stderr,"ERROR - %s\n", msg1);
-    return;
+void ErrMsg(char *msg1, char *msg2) {
+  if (msg2)
+    fprintf(stderr, "ERROR - %s %s\n", msg1, msg2);
+  else
+    fprintf(stderr, "ERROR - %s\n", msg1);
+  return;
 }
 
 /*********************************************************
  * print an error message on stderr followed by system message
  *********************************************************/
 
-void SysErrMsg(char * msg1, char * msg2)
-{
-    if (msg2)
-        fprintf(stderr,"ERROR - %s %s; ", msg1, msg2);
-    else
-        fprintf(stderr,"ERROR - %s; ", msg1);
-    perror(NULL);
-    return;
+void SysErrMsg(char *msg1, char *msg2) {
+  if (msg2)
+    fprintf(stderr, "ERROR - %s %s; ", msg1, msg2);
+  else
+    fprintf(stderr, "ERROR - %s; ", msg1);
+  perror(NULL);
+  return;
 }
 
 /*********************************************************
  * Create answer file and return its file name
  *********************************************************/
 
-char* InitAnsFile(char * inputfile)
-{
-    char* ans_file = malloc(sizeof(char) * 100);
-    strcpy(ans_file + strlen(ans_file), inputfile);
-    strcpy(ans_file + strlen(ans_file), ".ans");
-    fopen(ans_file, "w");
+char *InitAnsFile(char *inputfile) {
+  char *ans_file = malloc(sizeof(char) * 100);
+  strcpy(ans_file + strlen(ans_file), inputfile);
+  strcpy(ans_file + strlen(ans_file), ".ans");
+  fopen(ans_file, "w");
 
-    return ans_file;
+  return ans_file;
 }
-                                          

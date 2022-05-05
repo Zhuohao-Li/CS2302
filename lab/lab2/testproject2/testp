@@ -1,0 +1,184 @@
+#!/bin/tcsh
+######################################################################
+#
+#  OS Exercises 2nd project test script
+#
+#  date:    April 2022
+#  author:  Haoyuan Fu
+#   
+#  copyright (c) Ian G Graham, 2003. All rights reserved.
+#
+#  No warranty, explicit or implicit, is provided with this code. No
+#  responsibility will be accepted for any damage done to data or
+#  equipment through use of this code unless express written warranty
+#  has been provided and payment of monies has been exchanged to form
+#  a contract or licence for use.      
+#
+######################################################################
+
+# testbase is the directory in which project directories are stored 
+set testbase = /Users/edith_lzh/Desktop/大三下/OS/github/lab/lab2/proj2_ref/exercise11
+
+# directory containing this test script and other test files
+set thisdir = /Users/edith_lzh/Desktop/大三下/OS/github/lab/lab2/testproject2
+
+# directory to be tested is passed as first argument
+set submission = "$testbase/$1"
+
+# directory containing standard answer for comparison
+set standard_ans = "$thisdir/standard_ans"
+
+# target directory in which testing is done
+set testdir = "$thisdir/temp"
+mkdir -p $testdir
+
+# just in case of mavericks
+set pgmname = ./hostd
+
+# alias for output function
+# must be capable of interpreting colour strings and escape chars
+#alias print printf
+alias print $thisdir/echoesc
+
+# pretty colours (ASCII terminal)
+set black = "\033[30m"
+set red = "\033[31m"
+set green = "\033[32m"
+set yellow = "\033[33m"
+set blue = "\033[34m"
+set magenta = "\033[35m"
+set cyan = "\033[36m"
+
+print "$red OS Exercises project 2 test script\n"
+
+menu:
+
+chdir $testdir
+
+print "$magenta\n"
+print  " 0  : restart & recompile\n"
+print  " 1  : fcfs scheduler\n"
+print  " 2  : round robin scheduler\n"
+print  " 3  : feedback scheduler\n"
+print  " 4  : memory allocation\n"
+print  " 5  : combination of all requirements\n"
+print  " X  : exit\n"
+print " your choice: $black"
+set reply = $<
+if ($reply == '0') goto test0
+if ($reply == '1') goto test1
+if ($reply == '2') goto test2
+if ($reply == '3') goto test3
+if ($reply == '4') goto test4
+if ($reply == '5') goto test5
+if (($reply == 'X') || ($reply == 'x')) goto testX
+
+print "$red TEST ERROR - unrecognised option!\n"
+goto menu
+
+test0:
+
+print "$magenta ================================================================\n"
+print " restart - clear directory, reload and build applications\n" 
+print " ---------------------------------------------------------------- $black\n"
+rm -rf $testdir/*
+cp -r $submission/* $testdir
+ls -al
+print "$magenta ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
+print " 0.1. should only be makefile and src\/ dir containing *.c, and *.h files\n"
+print "      'rm: No match' allowed\n"
+print " ================================================================\n"
+print " press enter key to remove odd files and continue with compile: $black"
+set q = $<
+print "$magenta ---------------------------------------------------------------- $black\n"
+rm *.a *.o $pgmname process
+make
+ls -al
+cp $thisdir/process .
+print "$magenta ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
+print " 0.2. should have compiled ghost and listed directory\n"
+print "      'rm: No match' allowed\n"
+
+test1:
+  
+print "$magenta ================================================================\n"
+print " test 1. - fcfs scheduler\n"    
+print " press enter key to continue, X + enter to go back to menu, S to skip: $black"
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu
+if (($reply == 's') || ($reply == 'S')) goto test2 
+print "$magenta ---------------------------------------------------------------- $black\n"
+cd $testdir
+$pgmname $thisdir/fcfs.txt
+print "$magenta Correctness: (A blank line means correct) $black\n"
+print "\n"
+diff $thisdir/fcfs.txt.ans $standard_ans/fcfs.txt.ans
+
+
+test2:
+
+print "$magenta ================================================================\n"
+print " test 2. - round robin scheduler\n"    
+print " press enter key to continue, X + enter to go back to menu, S to skip: $black"
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu
+if (($reply == 's') || ($reply == 'S')) goto test3
+print "$red ---------------------------------------------------------------- $black\n"
+cd $testdir
+$pgmname $thisdir/rr.txt
+print "$magenta Correctness: (A blank line means correct) $black\n"
+print "\n"
+diff $thisdir/rr.txt.ans $standard_ans/rr.txt.ans
+
+
+test3:
+
+print "$magenta ================================================================\n"
+print " test 3. - feedback scheduler\n"    
+print " press enter key to continue, X + enter to go back to menu, S to skip: $black"
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu
+if (($reply == 's') || ($reply == 'S')) goto test4
+print "$magenta ---------------------------------------------------------------- $black\n"
+cd $testdir
+$pgmname $thisdir/feedback.txt
+print "$magenta Correctness: (A blank line means correct) $black\n"
+print "\n"
+diff $thisdir/feedback.txt.ans $standard_ans/feedback.txt.ans
+
+test4:
+
+print "$magenta ================================================================\n"
+print " test 5. - memory allocation\n"    
+print " press enter key to continue, X + enter to go back to menu, S to skip: $black"
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu
+if (($reply == 's') || ($reply == 'S')) goto test5
+print "$magenta ---------------------------------------------------------------- $black\n"
+cd $testdir
+$pgmname $thisdir/memory.txt
+print "$magenta Correctness: (A blank line means correct) $black\n"
+print "\n"
+diff $thisdir/memory.txt.ans $standard_ans/memory.txt.ans
+
+
+test5:
+
+print "$magenta ================================================================\n"
+print " test 7. - combination\n"    
+print "      7.1 - combination - standard test file\n"
+print " press enter key to continue, X + enter to go back to menu, S to skip: $black"
+set reply = $<
+if (($reply == 'x') || ($reply == 'X')) goto menu
+if (($reply == 's') || ($reply == 'S')) goto testX 
+print "$magenta ---------------------------------------------------------------- $black\n"
+cd $testdir
+$pgmname $thisdir/combined.txt
+print "$magenta Correctness: (A blank line means correct) $black\n"
+print "\n"
+diff $thisdir/combined.txt.ans $standard_ans/combined.txt.ans
+
+testX:
+  
+print "$red ================================================================ $black\n"
+

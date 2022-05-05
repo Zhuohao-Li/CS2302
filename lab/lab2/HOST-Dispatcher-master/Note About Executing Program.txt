@@ -1,2 +1,0 @@
-Must give ./process permission to execute via the following command: "chmod a+x ./process"
-input.txt contains a sample set of process information. Run "./hostd input.txt" to execute.

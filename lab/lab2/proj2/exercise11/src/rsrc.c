@@ -5,7 +5,7 @@
     rsrc - resource management routines for the GHOST dispatcher
 
     int rsrcChk (RsrcPtr available, Rsrc claim)
-       - check that resources are available now 
+       - check that resources are available now
       returns:
         TRUE or FALSE - no allocation is actally done
 
@@ -34,7 +34,7 @@
 *******************************************************************/
 
 #include "rsrc.h"
-                                          
+
 /*******************************************************
  * int rsrcChk (RsrcPtr available, Rsrc claim)
  *    - check that resources are available
@@ -44,14 +44,12 @@
  *******************************************************/
 int rsrcChk(RsrcPtr available, Rsrc claim)
 {
-    return ((available) &&
-            (available->printers >= claim.printers) &&
-            (available->scanners >= claim.scanners) &&
-            (available->modems >= claim.modems) &&
-            (available->cds >= claim.cds) ?
-             TRUE : FALSE );
+    return ((available) && (available->printers >= claim.printers) && (available->scanners >= claim.scanners) &&
+                    (available->modems >= claim.modems) && (available->cds >= claim.cds)
+                ? TRUE
+                : FALSE);
 }
-    
+
 /*******************************************************
  * int rsrcChkMax (Rsrc claim)
  *    - check that resources could be available
@@ -61,13 +59,12 @@ int rsrcChk(RsrcPtr available, Rsrc claim)
  *******************************************************/
 int rsrcChkMax(Rsrc claim)
 {
-    return ((claim.printers <= MAX_PRINTERS) &&
-            (claim.scanners <= MAX_SCANNERS) &&
-            (claim.modems <= MAX_MODEMS) &&
-            (claim.cds <= MAX_CDS) ?
-             TRUE : FALSE );
+    return ((claim.printers <= MAX_PRINTERS) && (claim.scanners <= MAX_SCANNERS) && (claim.modems <= MAX_MODEMS) &&
+                    (claim.cds <= MAX_CDS)
+                ? TRUE
+                : FALSE);
 }
-    
+
 /*******************************************************
  * int rsrcAlloc (RsrcPtr available, Rsrc claim)
  *    - allocate resources
@@ -77,7 +74,8 @@ int rsrcChkMax(Rsrc claim)
  *******************************************************/
 int rsrcAlloc(RsrcPtr available, Rsrc claim)
 {
-    if (!rsrcChk(available, claim)) return FALSE;
+    if (!rsrcChk(available, claim))
+        return FALSE;
     available->printers -= claim.printers;
     available->scanners -= claim.scanners;
     available->modems -= claim.modems;
@@ -98,4 +96,3 @@ void rsrcFree(RsrcPtr available, Rsrc claim)
     available->modems += claim.modems;
     available->cds += claim.cds;
 }
-
