@@ -6,32 +6,32 @@
 
    MabPtr memChk (MabPtr arena, int size);
       - check for memory available (any algorithm)
-
+ 
     returns address of "First Fit" block or NULL
 
    int memChkMax (int size);
       - check for over max memory
-
+ 
     returns TRUE/FALSE OK/OVERSIZE
 
    MabPtr memAlloc (MabPtr arena, int size);
       - allocate a memory block
-
+ 
     returns address of block or NULL if failure
 
    MabPtr memFree (MabPtr mab);
       - de-allocate a memory block
-
+ 
     returns address of block or merged block
 
    MabPtr memMerge(Mabptr m);
       - merge m with m->next
-
+ 
     returns m
 
    MabPtr memSplit(Mabptr m, int size);
       - split m into two with first mab having size
-
+  
     returns m or NULL if unable to supply size bytes
 
    void memPrint(MabPtr arena);
@@ -55,7 +55,7 @@
 
 enum memAllocAlg MabAlgorithm = FIRST_FIT;
 
-static MabPtr next_mab = NULL; // for NEXT_FIT algorithm
+static MabPtr next_mab = NULL;    // for NEXT_FIT algorithm
 
 /*******************************************************
  * MabPtr memChk (MabPtr arena, int size);
@@ -65,17 +65,15 @@ static MabPtr next_mab = NULL; // for NEXT_FIT algorithm
  *******************************************************/
 MabPtr memChk(MabPtr arena, int size)
 {
-    while (arena)
-    {
-        if (!arena->allocated && (arena->size >= size))
-        {
+    while (arena) {
+        if (!arena->allocated && (arena->size >= size)) {
             return arena;
         }
         arena = arena->next;
     }
     return NULL;
 }
-
+      
 /*******************************************************
  * int memChkMax (int size);
  *    - check for memory available (any algorithm)
@@ -85,7 +83,7 @@ MabPtr memChk(MabPtr arena, int size)
 int memChkMax(int size)
 {
     return size > USER_MEMORY_SIZE ? FALSE : TRUE;
-}
+}      
 
 /*******************************************************
  * MabPtr memAlloc (MabPtr arena, int size);
@@ -97,74 +95,34 @@ MabPtr memAlloc(MabPtr arena, int size)
 {
     MabPtr m;
 
-    // First Fit, I set it to the default situation in order its robustness
-    // If there's no matching memory allocation strategies, just follow First Fit
-    // if (MabAlgorithm == FIRST_FIT)
-    // {
-    //     if ((m = memChk(arena, size)) && (m = memSplit(m, size)))
-    //         m->allocated = TRUE;
-    //     return m;
-    // }
-
+    // First Fit
+    if (MabAlgorithm == FIRST_FIT) {
+        if ((m = memChk(arena, size)) &&
+        (m = memSplit(m, size)))
+        m->allocated = TRUE;
+        return m;
+    }
     // Next Fit
-    if (MabAlgorithm == NEXT_FIT)
-    {
-        m = next_mab;
-        do
-        {
-            if (!m)
-                m = arena;
-            if (!m->allocated && (m->size >= size))
-            {
-                m = memSplit(m, size);
-                m->allocated = TRUE;
-                next_mab = m->next;
-                return m;
-            }
-            m = m->next;
-        } while (m != next_mab);
+    else if (MabAlgorithm == NEXT_FIT) {
+
+        // TODO
+
         return NULL;
     }
     // Best Fit
-    else if (MabAlgorithm == BEST_FIT)
-    {
-        m = NULL;
-        while (arena)
-        {
-            if (!arena->allocated && (arena->size >= size) && (!m || (arena->size < m->size)))
-                m = arena;
-            arena = arena->next;
-        }
-        if (m)
-        {
-            m = memSplit(m, size);
-            m->allocated = TRUE;
-        }
-        return m;
+    else if (MabAlgorithm == BEST_FIT) {
+
+        // TODO
+
+        return NULL;
     }
     // Worst Fit
-    else if (MabAlgorithm == WORST_FIT)
-    {
-        m = NULL;
-        while (arena)
-        {
-            if (!arena->allocated && (arena->size >= size) && (!m || (arena->size > m->size)))
-                m = arena;
-            arena = arena->next;
-        }
-        if (m)
-        {
-            m = memSplit(m, size);
-            m->allocated = TRUE;
-        }
-        return m;
+    else if (MabAlgorithm == WORST_FIT) {
+
+        // TODO
+
+        return NULL;
     }
-
-    /* fall through to FIRST_FIT default */
-
-    if ((m = memChk(arena, size)) && (m = memSplit(m, size)))
-        m->allocated = TRUE;
-    return m;
 }
 
 /*******************************************************
@@ -175,8 +133,7 @@ MabPtr memAlloc(MabPtr arena, int size)
  *******************************************************/
 MabPtr memFree(MabPtr m)
 {
-    if (m)
-    {
+    if (m) {
         m->allocated = FALSE;
         if (m->next && (m->next->allocated == FALSE))
             memMerge(m);
@@ -185,7 +142,7 @@ MabPtr memFree(MabPtr m)
     }
     return m;
 }
-
+      
 /*******************************************************
  * MabPtr memMerge(Mabptr m);
  *    - merge m with m->next
@@ -196,17 +153,15 @@ MabPtr memMerge(MabPtr m)
 {
     MabPtr n;
 
-    if (m && (n = m->next))
-    {
+    if (m && (n = m->next)) {
         m->next = n->next;
         m->size += n->size;
+        
+        if (MabAlgorithm == NEXT_FIT &&     
+            next_mab == n) next_mab = m;
 
-        if (MabAlgorithm == NEXT_FIT && next_mab == n)
-            next_mab = m;
-
-        free(n);
-        if (m->next)
-            (m->next)->prev = m;
+        free (n);
+        if (m->next) (m->next)->prev = m;
     }
     return m;
 }
@@ -220,15 +175,12 @@ MabPtr memMerge(MabPtr m)
 MabPtr memSplit(MabPtr m, int size)
 {
     MabPtr n;
-
-    if (m)
-    {
-        if (m->size > size)
-        {
-            n = (MabPtr)malloc(sizeof(Mab));
-            if (!n)
-            {
-                fprintf(stderr, "memory allocation error\n");
+    
+    if (m) {
+        if (m->size > size) {
+            n = (MabPtr) malloc( sizeof(Mab) );
+            if (!n) {
+                fprintf(stderr,"memory allocation error\n");
                 exit(127);
             }
             n->offset = m->offset + size;
@@ -238,13 +190,11 @@ MabPtr memSplit(MabPtr m, int size)
             n->next = m->next;
             m->next = n;
             n->prev = m;
-            if (n->next)
-                n->next->prev = n;
+            if (n->next) n->next->prev = n;
         }
-        if (m->size == size)
-            return m;
+        if (m->size == size) return m;
     }
-    return NULL;
+    return NULL;    
 }
 
 /*******************************************************
@@ -254,13 +204,11 @@ MabPtr memSplit(MabPtr m, int size)
  *******************************************************/
 void memPrint(MabPtr arena)
 {
-    while (arena)
-    {
-        printf("offset%7d: size%7d - ", arena->offset, arena->size);
-        if (arena->allocated)
-            printf("allocated\n");
-        else
-            printf("free\n");
+    while(arena) {
+        printf("offset%7d: size%7d - ",arena->offset, arena->size);
+        if (arena->allocated) printf("allocated\n");
+        else printf("free\n");
         arena = arena->next;
     }
 }
+

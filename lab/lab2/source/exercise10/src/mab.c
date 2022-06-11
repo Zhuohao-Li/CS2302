@@ -97,74 +97,37 @@ MabPtr memAlloc(MabPtr arena, int size)
 {
     MabPtr m;
 
-    // First Fit, I set it to the default situation in order its robustness
-    // If there's no matching memory allocation strategies, just follow First Fit
-    // if (MabAlgorithm == FIRST_FIT)
-    // {
-    //     if ((m = memChk(arena, size)) && (m = memSplit(m, size)))
-    //         m->allocated = TRUE;
-    //     return m;
-    // }
-
-    // Next Fit
-    if (MabAlgorithm == NEXT_FIT)
+    // First Fit
+    if (MabAlgorithm == FIRST_FIT)
     {
-        m = next_mab;
-        do
-        {
-            if (!m)
-                m = arena;
-            if (!m->allocated && (m->size >= size))
-            {
-                m = memSplit(m, size);
-                m->allocated = TRUE;
-                next_mab = m->next;
-                return m;
-            }
-            m = m->next;
-        } while (m != next_mab);
+        if ((m = memChk(arena, size)) && (m = memSplit(m, size)))
+            m->allocated = TRUE;
+        return m;
+    }
+    // Next Fit
+    else if (MabAlgorithm == NEXT_FIT)
+    {
+
+        // TODO
+
         return NULL;
     }
     // Best Fit
     else if (MabAlgorithm == BEST_FIT)
     {
-        m = NULL;
-        while (arena)
-        {
-            if (!arena->allocated && (arena->size >= size) && (!m || (arena->size < m->size)))
-                m = arena;
-            arena = arena->next;
-        }
-        if (m)
-        {
-            m = memSplit(m, size);
-            m->allocated = TRUE;
-        }
-        return m;
+
+        // TODO
+
+        return NULL;
     }
     // Worst Fit
     else if (MabAlgorithm == WORST_FIT)
     {
-        m = NULL;
-        while (arena)
-        {
-            if (!arena->allocated && (arena->size >= size) && (!m || (arena->size > m->size)))
-                m = arena;
-            arena = arena->next;
-        }
-        if (m)
-        {
-            m = memSplit(m, size);
-            m->allocated = TRUE;
-        }
-        return m;
+
+        // TODO
+
+        return NULL;
     }
-
-    /* fall through to FIRST_FIT default */
-
-    if ((m = memChk(arena, size)) && (m = memSplit(m, size)))
-        m->allocated = TRUE;
-    return m;
 }
 
 /*******************************************************
