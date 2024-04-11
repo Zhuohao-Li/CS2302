@@ -1,4 +1,4 @@
-# Dawson's Lee's Lecture Notes
+# SJTU CS2302
 
 This repo contains my notes for CS2302
 
